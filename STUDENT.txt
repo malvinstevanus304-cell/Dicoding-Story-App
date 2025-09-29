@@ -1,3 +1,47 @@
-APP_URL=http://localhost:9000
-MAP_SERVICE_API_KEY=YOUR_MAP_KEY
-API_TOKEN=YOUR_VALID_TOKEN
+========================================
+Dicoding Submission - Story App
+========================================
+
+Nama  : Malvin Stevanus
+ID    : (isi dengan ID Dicoding kamu)
+Kelas : Belajar Fundamental Aplikasi Web dengan JavaScript
+
+========================================
+Kriteria 5: Dokumentasi Proyek
+========================================
+
+Repository GitHub:
+https://github.com/malvinstevanus304-cell/Dicoding-Story-App
+
+Cara Menjalankan Project:
+1. Clone repository:
+   git clone https://github.com/malvinstevanus304-cell/Dicoding-Story-App.git
+
+2. Masuk ke folder project:
+   cd Dicoding-Story-App
+
+3. Install dependencies:
+   npm install
+
+4. Build aplikasi (jika perlu):
+   npm run build
+
+5. Jalankan aplikasi:
+   npm run start-dev
+
+========================================
+Fitur Utama:
+- Login & Register user
+- Upload cerita dengan foto
+- Menampilkan daftar cerita (Story List)
+- Detail cerita
+- Map lokasi cerita
+- Push Notification (subscribe & unsubscribe)
+- Offline support dengan Service Worker + Cache
+
+========================================
+Catatan:
+- Aplikasi ini menggunakan API Dicoding Story:
+  https://story-api.dicoding.dev/v1/
+- Pastikan token login valid sebelum mengakses endpoint.
+- VAPID Public Key dari Dicoding digunakan untuk Push Notification.
