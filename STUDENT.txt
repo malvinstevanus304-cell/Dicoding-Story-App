@@ -3,7 +3,7 @@ Dicoding Submission - Story App
 ========================================
 
 Nama  : Malvin Stevanus
-ID    : (isi dengan ID Dicoding kamu)
+ID    : (F891D5Y1065)
 Kelas : Belajar Fundamental Aplikasi Web dengan JavaScript
 
 ========================================

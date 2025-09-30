@@ -2,16 +2,23 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getToken } from '../../utils/auth';
 
-// 🔹 Fix import ikon Leaflet di Webpack
+// Fix import ikon Leaflet agar selalu ikut bundle
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconUrl: iconUrl,
-  shadowUrl: iconShadow,
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
 });
 
 export default class MapPage {
+  constructor() {
+    this.map = null; // simpan instance map
+  }
+
   async render() {
     return `
       <section class="container page">
@@ -83,26 +90,27 @@ export default class MapPage {
   }
 
   _renderMap(stories) {
-    const map = L.map('map').setView([-2.5, 118], 5);
+    // Hapus map lama jika ada
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+
+    // Buat map baru
+    this.map = L.map('map').setView([-2.5, 118], 5);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-    }).addTo(map);
+    }).addTo(this.map);
 
     const markers = [];
 
     stories.forEach((s, i) => {
-      let marker;
-      if (s.lat !== undefined && s.lon !== undefined) {
-        marker = L.marker([s.lat, s.lon])
-          .addTo(map)
-          .bindPopup(`<b>${s.name}</b><br>${s.description}`);
-      } else {
-        // fallback marker di posisi default
-        marker = L.marker([-2.5, 118])
-          .addTo(map)
-          .bindPopup(`<b>${s.name}</b><br>${s.description}`);
-      }
+      const lat = s.lat ?? -2.5;
+      const lon = s.lon ?? 118;
+      const marker = L.marker([lat, lon])
+        .addTo(this.map)
+        .bindPopup(`<b>${s.name}</b><br>${s.description}`);
       markers.push(marker);
     });
 
@@ -112,8 +120,8 @@ export default class MapPage {
         const idx = li.dataset.index;
         const marker = markers[idx];
         if (marker) {
-          map.setView(marker.getLatLng(), 13, { animate: true });
-          if (marker.getPopup()) marker.openPopup();
+          this.map.setView(marker.getLatLng(), 13, { animate: true });
+          marker.openPopup();
           this._highlightStory(idx);
         }
       });

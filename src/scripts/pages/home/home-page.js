@@ -1,16 +1,14 @@
 import { getToken } from '../../utils/auth.js';
+import { addToFavorites } from '../../utils/favorite.js';
 
 export default class HomePage {
   async render() {
     return `
       <section class="container page">
-        <!-- HERO SECTION -->
         <div class="hero">
           <h1 class="hero__title">Selamat Datang di Story App</h1>
           <p class="hero__subtitle">Bagikan momenmu dengan dunia 🌍</p>
         </div>
-
-        <!-- STORY LIST -->
         <h2 class="section-title">Daftar Story Terbaru</h2>
         <div id="stories" class="stories-list"></div>
       </section>
@@ -21,13 +19,8 @@ export default class HomePage {
     const storyContainer = document.querySelector('#stories');
     const token = getToken();
 
-    // Jika belum login
     if (!token) {
-      storyContainer.innerHTML = `
-        <p style="color:red; text-align:center;">
-          <a href="#/login">Login</a>.
-        </p>
-      `;
+      storyContainer.innerHTML = `<p style="color:red;text-align:center;"><a href="#/login">Login</a> untuk melihat story.</p>`;
       return;
     }
 
@@ -37,37 +30,37 @@ export default class HomePage {
       });
       const result = await response.json();
 
-      // Jika ada error dari API
       if (!response.ok || result.error) {
-        storyContainer.innerHTML = `
-          <p style="color:red; text-align:center;">
-            ${result.message || 'Gagal memuat story'}
-          </p>
-        `;
+        storyContainer.innerHTML = `<p style="color:red;text-align:center;">${result.message || 'Gagal memuat story'}</p>`;
         return;
       }
 
-      // Render daftar story
-      storyContainer.innerHTML = result.listStory
-        .map(
-          (story) => `
-            <div class="story-item">
-              <img src="${story.photoUrl}" alt="Foto ${story.name}" />
-              <div class="story-item__content">
-                <h3>${story.name}</h3>
-                <p>${story.description}</p>
-              </div>
-            </div>
-          `
-        )
-        .join('');
+      storyContainer.innerHTML = result.listStory.map(story => `
+        <div class="story-item">
+          <img src="${story.photoUrl}" alt="${story.name}" />
+          <div class="story-item__content">
+            <h3>${story.name}</h3>
+            <p>${story.description}</p>
+            <small>📅 ${new Date(story.createdAt).toLocaleString()}</small>
+          </div>
+          <button class="love-btn" data-id="${story.id}">❤️</button>
+        </div>
+      `).join('');
+
+      // Event tombol love
+      document.querySelectorAll('.love-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const storyId = btn.dataset.id;
+          const storyData = result.listStory.find(s => s.id === storyId);
+          if (!storyData) return;
+
+          await addToFavorites(storyData);
+          btn.textContent = '💖'; // tanda sudah disimpan
+        });
+      });
 
     } catch (err) {
-      storyContainer.innerHTML = `
-        <p style="color:red; text-align:center;">
-          Gagal memuat story: ${err.message}
-        </p>
-      `;
+      storyContainer.innerHTML = `<p style="color:red;text-align:center;">Gagal memuat story: ${err.message}</p>`;
     }
   }
 }

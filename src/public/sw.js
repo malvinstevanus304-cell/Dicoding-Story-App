@@ -1,11 +1,12 @@
 // ===============================
-// Service Worker Final (Fix Dist)
+// Service Worker Final + Push + API POST Notif
 // ===============================
 
-const CACHE_NAME = "story-app-cache-v5";
+const CACHE_NAME = "story-app-cache-v7";
 const urlsToCache = [
   "/",
   "/index.html",
+  "/offline.html",
   "/app.bundle.js",
   "/images/logo.png",
 ];
@@ -14,51 +15,66 @@ const urlsToCache = [
 self.addEventListener("install", (event) => {
   console.log("[SW] Install event");
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[SW] Caching:", urlsToCache);
-      return cache.addAll(urlsToCache);
-    }).catch((err) => {
-      console.error("[SW] Caching failed:", err);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
 });
-
 
 // Activate
 self.addEventListener("activate", (event) => {
   console.log("[SW] Activate event");
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
+    caches.keys().then((keys) =>
       Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => {
-            console.log("[SW] Deleting old cache:", name);
-            return caches.delete(name);
-          })
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
       )
     )
   );
 });
 
-// Fetch: gunakan cache jika offline
+// Fetch
 self.addEventListener("fetch", (event) => {
+  const req = event.request;
+
+  // Navigasi → network-first fallback offline.html
+  if (req.mode === "navigate") {
+    event.respondWith(fetch(req).catch(() => caches.match("/offline.html")));
+    return;
+  }
+
+  // Intercept POST ke API tertentu
+  if (req.method === "POST" && req.url.includes("/api/")) {
+    event.respondWith(
+      fetch(req.clone())
+        .then((res) => {
+          // Setelah sukses POST, munculkan notif
+          self.registration.showNotification("Story App", {
+            body: "Data berhasil dikirim ke server!",
+            icon: "/images/logo.png",
+            badge: "/images/logo.png",
+            vibrate: [100, 50, 100],
+          });
+          return res;
+        })
+        .catch((err) => {
+          console.error("[SW] POST gagal:", err);
+          return new Response(
+            JSON.stringify({ error: "Tidak bisa kirim data" }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+          );
+        })
+    );
+    return;
+  }
+
+  // Cache-first untuk asset lain
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return (
-        response ||
-        fetch(event.request).catch(() =>
-          caches.match("/index.html")
-        )
-      );
-    })
+    caches.match(req).then((res) => res || fetch(req))
   );
 });
 
-// Push Notification
+// Push
 self.addEventListener("push", (event) => {
   console.log("[SW] Push event:", event);
-
   let data = {};
   if (event.data) {
     try {
@@ -85,12 +101,13 @@ self.addEventListener("push", (event) => {
   );
 });
 
-// Handle klik notifikasi
+// Notification click
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-
   if (event.action === "open" && event.notification.data?.url) {
     event.waitUntil(clients.openWindow(event.notification.data.url));
+  } else if (event.action === "close") {
+    // do nothing
   } else {
     event.waitUntil(clients.openWindow("/"));
   }

@@ -144,57 +144,62 @@ export default class AddPage {
       lonInput.value = e.latlng.lng;
     });
 
-    // Submit form
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const description = form.description.value.trim();
-      const photoFile = fileInput.files[0];
+    // Submit form //
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const description = form.description.value.trim();
+  const photoFile = fileInput.files[0];
 
-      if (!description) {
-        messageBox.innerHTML = `<p style="color:red;">⚠️ Deskripsi wajib diisi</p>`;
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('description', description);
-
-      if (photoFile) {
-        formData.append('photo', photoFile);
-      } else if (hasCaptured) {
-        const blob = await (await fetch(canvas.toDataURL())).blob();
-        formData.append('photo', blob, 'captured.png');
-      } else {
-        messageBox.innerHTML = `<p style="color:red;">⚠️ Foto wajib diisi</p>`;
-        return;
-      }
-
-      if (latInput.value && lonInput.value) {
-        formData.append('lat', latInput.value);
-        formData.append('lon', lonInput.value);
-      }
-
-      try {
-        const response = await fetch('https://story-api.dicoding.dev/v1/stories', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-
-        const result = await response.json();
-        if (response.ok && !result.error) {
-          messageBox.innerHTML = `<p style="color:green;">✅ Story berhasil ditambahkan!</p>`;
-          form.reset();
-          cameraPreview.innerHTML = 'Belum ada foto';
-          if (this._marker) map.removeLayer(this._marker);
-          this._marker = null;
-        } else {
-          messageBox.innerHTML = `<p style="color:red;">❌ ${result.message}</p>`;
-        }
-      } catch (err) {
-        messageBox.innerHTML = `<p style="color:red;">Terjadi kesalahan: ${err.message}</p>`;
-      }
-    });
+  if (!description) {
+    messageBox.innerHTML = `<p style="color:red;">⚠️ Deskripsi wajib diisi</p>`;
+    return;
   }
+
+  const formData = new FormData();
+  formData.append('description', description);
+
+  if (photoFile) {
+    formData.append('photo', photoFile);
+  } else if (hasCaptured) {
+    const blob = await (await fetch(canvas.toDataURL())).blob();
+    formData.append('photo', blob, 'captured.png');
+  } else {
+    messageBox.innerHTML = `<p style="color:red;">⚠️ Foto wajib diisi</p>`;
+    return;
+  }
+
+  if (latInput.value && lonInput.value) {
+    formData.append('lat', latInput.value);
+    formData.append('lon', lonInput.value);
+  }
+
+  try {
+    const response = await fetch('https://story-api.dicoding.dev/v1/stories', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const result = await response.json();
+    if (response.ok && !result.error) {
+      messageBox.innerHTML = `<p style="color:green;">✅ Story berhasil ditambahkan!</p>`;
+      form.reset();
+      cameraPreview.innerHTML = 'Belum ada foto';
+      if (this._marker) map.removeLayer(this._marker);
+      this._marker = null;
+
+      // 🔹 Redirect ke halaman utama
+      setTimeout(() => {
+        window.location.hash = '#/';
+      }, 1000);
+    } else {
+      messageBox.innerHTML = `<p style="color:red;">❌ ${result.message}</p>`;
+    }
+  } catch (err) {
+    messageBox.innerHTML = `<p style="color:red;">Terjadi kesalahan: ${err.message}</p>`;
+  }
+});
+}
 
   // Matikan kamera saat navigasi
   async stop() {
