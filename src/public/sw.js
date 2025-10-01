@@ -1,14 +1,15 @@
 // ===============================
-// Service Worker Final + Push + API POST Notif
+// Service Worker Final + Push + Offline
 // ===============================
 
-const CACHE_NAME = "story-app-cache-v7";
+const CACHE_NAME = "story-app-cache-v8";
+const BASE_PATH = "/Dicoding-Story-App"; // <-- sesuaikan subfolder GitHub Pages
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/offline.html",
-  "/app.bundle.js",
-  "/images/logo.png",
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/offline.html`,
+  `${BASE_PATH}/app.bundle.js`,
+  `${BASE_PATH}/images/logo.png`,
 ];
 
 // Install
@@ -37,20 +38,21 @@ self.addEventListener("fetch", (event) => {
 
   // Navigasi → network-first fallback offline.html
   if (req.mode === "navigate") {
-    event.respondWith(fetch(req).catch(() => caches.match("/offline.html")));
+    event.respondWith(
+      fetch(req).catch(() => caches.match(`${BASE_PATH}/offline.html`))
+    );
     return;
   }
 
-  // Intercept POST ke API tertentu
+  // Intercept POST ke API tertentu → munculkan notif sukses
   if (req.method === "POST" && req.url.includes("/api/")) {
     event.respondWith(
       fetch(req.clone())
         .then((res) => {
-          // Setelah sukses POST, munculkan notif
           self.registration.showNotification("Story App", {
             body: "Data berhasil dikirim ke server!",
-            icon: "/images/logo.png",
-            badge: "/images/logo.png",
+            icon: `${BASE_PATH}/images/logo.png`,
+            badge: `${BASE_PATH}/images/logo.png`,
             vibrate: [100, 50, 100],
           });
           return res;
@@ -67,9 +69,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Cache-first untuk asset lain
-  event.respondWith(
-    caches.match(req).then((res) => res || fetch(req))
-  );
+  event.respondWith(caches.match(req).then((res) => res || fetch(req)));
 });
 
 // Push
@@ -86,8 +86,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.message || "Anda mendapat notifikasi baru!",
-    icon: "/images/logo.png",
-    badge: "/images/logo.png",
+    icon: `${BASE_PATH}/images/logo.png`,
+    badge: `${BASE_PATH}/images/logo.png`,
     vibrate: [100, 50, 100],
     data: { url: data.url || "/" },
     actions: [
@@ -106,9 +106,7 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   if (event.action === "open" && event.notification.data?.url) {
     event.waitUntil(clients.openWindow(event.notification.data.url));
-  } else if (event.action === "close") {
-    // do nothing
   } else {
-    event.waitUntil(clients.openWindow("/"));
+    event.waitUntil(clients.openWindow(`${BASE_PATH}/`));
   }
 });
