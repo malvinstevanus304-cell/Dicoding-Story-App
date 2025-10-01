@@ -2,7 +2,7 @@
 // Service Worker Final + Push + Offline
 // ===============================
 
-const CACHE_NAME = "story-app-cache-v8";
+const CACHE_NAME = "story-app-cache-v9";
 const BASE = "/Dicoding-Story-App";
 
 const urlsToCache = [
@@ -26,7 +26,9 @@ self.addEventListener("activate", (event) => {
   console.log("[SW] Activate event");
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      )
     )
   );
 });
@@ -35,7 +37,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Navigasi → network-first, fallback offline.html
+  // Navigasi → network-first fallback offline.html
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req).catch(() => caches.match(`${BASE}/offline.html`))
@@ -43,7 +45,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // POST ke API → kasih notif sukses
+  // Intercept POST ke API tertentu → munculkan notif sukses
   if (req.method === "POST" && req.url.includes("/api/")) {
     event.respondWith(
       fetch(req.clone())
@@ -58,10 +60,10 @@ self.addEventListener("fetch", (event) => {
         })
         .catch((err) => {
           console.error("[SW] POST gagal:", err);
-          return new Response(JSON.stringify({ error: "Tidak bisa kirim data" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({ error: "Tidak bisa kirim data" }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+          );
         })
     );
     return;
