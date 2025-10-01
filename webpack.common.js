@@ -22,12 +22,22 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
     }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, 'src/public/'),
-          to: path.resolve(__dirname, 'dist/'),
-        },
+
+    // Copy semua public files (manifest, images, favicon, dll)
+   new CopyWebpackPlugin({
+  patterns: [
+    {
+      from: path.resolve(__dirname, 'src/public/'),
+      to: path.resolve(__dirname, 'dist/'),
+    },
+    {
+      from: path.resolve(__dirname, 'src/offline.html'),
+      to: path.resolve(__dirname, 'dist/offline.html'),
+    },
+    {
+      from: path.resolve(__dirname, 'src/public/sw-register.js'),
+      to: path.resolve(__dirname, 'dist/sw-register.js'),
+    },
       ],
     }),
   ],

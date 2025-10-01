@@ -1,6 +1,6 @@
 import { openDB } from 'idb';
 
-const DB_NAME = 'story-app';
+const DB_NAME = 'Dicoding-Story-App';
 const STORE_NAME = 'favorites';
 
 async function getDB() {

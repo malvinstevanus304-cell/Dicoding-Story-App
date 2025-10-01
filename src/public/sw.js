@@ -2,14 +2,15 @@
 // Service Worker Final + Push + Offline
 // ===============================
 
-const CACHE_NAME = "story-app-cache-v8";
-const BASE_PATH = "/Dicoding-Story-App"; // <-- sesuaikan subfolder GitHub Pages
+const CACHE_NAME = "Dicoding-Story-App-cache-v8";
+const BASE = "/Dicoding-Story-App";
+
 const urlsToCache = [
-  `${BASE_PATH}/`,
-  `${BASE_PATH}/index.html`,
-  `${BASE_PATH}/offline.html`,
-  `${BASE_PATH}/app.bundle.js`,
-  `${BASE_PATH}/images/logo.png`,
+  `${BASE}/`,
+  `${BASE}/index.html`,
+  `${BASE}/offline.html`,
+  `${BASE}/app.bundle.js`,
+  `${BASE}/images/logo.png`,
 ];
 
 // Install

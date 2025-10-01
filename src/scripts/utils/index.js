@@ -39,3 +39,4 @@ window.addEventListener('error', (event) => {
   const msg = event.error?.message || event.message;
   showGlobalError(`❌ ${msg}`);
 });
+

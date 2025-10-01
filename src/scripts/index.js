@@ -46,7 +46,7 @@ window.addEventListener('error', (event) => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const swReg = await navigator.serviceWorker.register('/story-app/sw.js'); // ganti /story-app sesuai repo
+      const swReg = await navigator.serviceWorker.register('/Dicoding-Story-App/sw.js'); // ganti /story-app sesuai repo
       console.log('✅ Service Worker registered:', swReg.scope);
 
       // Request Notification permission otomatis
@@ -71,3 +71,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 }
+
+import '../public/sw-register';
