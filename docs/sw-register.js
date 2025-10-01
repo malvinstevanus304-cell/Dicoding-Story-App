@@ -1,0 +1,1 @@
+const BASE_PATH="/Dicoding-Story-App";"serviceWorker"in navigator&&window.addEventListener("load",(()=>{navigator.serviceWorker.register(`${BASE_PATH}/sw.js`).then((e=>{console.log("✅ Service Worker registered with scope:",e.scope)})).catch((e=>{console.error("❌ SW registration failed:",e)}))}));

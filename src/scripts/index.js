@@ -72,4 +72,4 @@ if ('serviceWorker' in navigator) {
 }
 }
 
-import '../public/sw-register';
+import '../sw-register';

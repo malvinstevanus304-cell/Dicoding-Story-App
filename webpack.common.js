@@ -23,21 +23,19 @@ module.exports = {
       template: path.resolve(__dirname, 'src/index.html'),
     }),
 
-    // Copy semua public files (manifest, images, favicon, dll)
-   new CopyWebpackPlugin({
-  patterns: [
-    {
-      from: path.resolve(__dirname, 'src/public/'),
-      to: path.resolve(__dirname, 'dist/'),
-    },
-    {
-      from: path.resolve(__dirname, 'src/offline.html'),
-      to: path.resolve(__dirname, 'dist/offline.html'),
-    },
-    {
-      from: path.resolve(__dirname, 'src/public/sw-register.js'),
-      to: path.resolve(__dirname, 'dist/sw-register.js'),
-    },
+    new CopyWebpackPlugin({
+      patterns: [
+        // semua file di public (favicon, manifest, images, dll)
+        { from: 'src/public', to: '.' },
+
+        // offline page
+        { from: 'src/offline.html', to: 'offline.html' },
+
+        // service worker register
+        { from: 'src/sw-register.js', to: 'sw-register.js' },
+
+        // service worker utama
+        { from: 'src/sw.js', to: 'sw.js' },
       ],
     }),
   ],
